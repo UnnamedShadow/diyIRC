@@ -7,6 +7,6 @@ s.listen(1)
 # accept a connection
 conn, addr = s.accept()
 # send a message
-shared.send(conn, 'Hello, world!')
+shared.send(conn, 'hi')
 # recieve a message
 print(shared.recieve(conn))
