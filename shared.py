@@ -1,52 +1,36 @@
+"""A library for sending and receiving messages reliably over TCP sockets."""
+
 import socket
 
-msg_end = b'\n'
-msg_accept = b'\x06'
+msgEnd=''
+msgAccept=''
+tries=5
 
-def checksum(data):
-    """Calculate the two's complement checksum of the message data"""
-    total = sum(data)
-    checksum = (~total + 1) & 0xFF
-    return checksum
+def cksum(msg):
+    """Returns the checksum of a message."""
+    try:
+        return sum([ord(c) for c in msg]) % 256
+    except ValueError:
+        return sum([c for c in msg]) % 256
 
-def send_msg(s, msg):
-    """Send a message over the socket connection"""
-    msg = msg + msg_end
-    checksum_value = checksum(msg)
-    msg = msg + bytes([checksum_value])
-    s.sendall(msg)
+def send(sock, msg):
+    """Sends a message over a socket. Until confirmation is received. Or the message is sent 3 times."""
+    msg = msg + msgEnd + chr(cksum(msg))
+    for i in range(tries):
+        sock.sendall(msg)
+        if sock.recv(1) == msgAccept:
+            return
+    raise Exception("Message not sent")
 
-def recv_msg(s):
-    """Receive a message over the socket connection"""
-    msg = b''
-    while True:
-        data = s.recv(1)
-        if data == msg_end:
-            break
-        msg += data
-    recv_checksum = s.recv(1)
-    expected_checksum = checksum(msg)
-    if recv_checksum != bytes([expected_checksum]):
-        send_msg(s, msg_accept)
-        return None
-    send_msg(s, msg_accept)
-    return msg.decode('utf-8')
-
-def send(s, data, tries=3):
-    """Send data with retries"""
-    while tries > 0:
-        send_msg(s, data)
-        msg = recv_msg(s)
-        if msg is not None:
-            return True
-        tries -= 1
-    return False
-
-def receive(s, tries=3):
-    """Receive data with retries"""
-    while tries > 0:
-        msg = recv_msg(s)
-        if msg is not None:
+def recv(sock):
+    """Receives a message over a socket."""
+    msg = ''
+    for i in range(tries):
+        msg = ''
+        while msg[-1:] != msgEnd:
+            msg += sock.recv(1)
+        msg = msg[:-1]
+        if cksum(msg) == ord(sock.recv(1)):
+            sock.sendall(msgAccept)
             return msg
-        tries -= 1
-    return None
+    raise Exception("Message not received")
