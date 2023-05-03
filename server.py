@@ -7,6 +7,6 @@ s.listen(1)
 # accept a connection
 conn, addr = s.accept()
 # send a message
-shared.send(conn, 'hi')
+shared.send(conn, 'hi 1243214214214214214 2ho                                                                             w are you *#@)(392??)')
 # recieve a message
 print(shared.recieve(conn))
