@@ -1,47 +1,52 @@
 import socket
 
-msgEnd=''
-msgAccept=''
+msg_end = b'\n'
+msg_accept = b'\x06'
 
 def checksum(data):
-    # Calculate the sum of all bytes in the data
-    total = sum((ord(byte) if isinstance(byte,str) else byte) for byte in data)
-    # Take the two's complement of the sum
-    checksum = ~total & 0xFF
+    """Calculate the two's complement checksum of the message data"""
+    total = sum(data)
+    checksum = (~total + 1) & 0xFF
     return checksum
 
-def sendMsg(s,msg):
-    msg=msg+msgEnd
-    msg=msg.encode('utf-8')
-    msg=msg+bytes([checksum(msg)])
+def send_msg(s, msg):
+    """Send a message over the socket connection"""
+    msg = msg + msg_end
+    checksum_value = checksum(msg)
+    msg = msg + bytes([checksum_value])
     s.sendall(msg)
 
-def recvMsg(s):
-    msg=b''
+def recv_msg(s):
+    """Receive a message over the socket connection"""
+    msg = b''
     while True:
-        data=s.recv(1)
-        if data==msgEnd.encode('utf-8'):
+        data = s.recv(1)
+        if data == msg_end:
             break
-        msg+=data
-    return msg
+        msg += data
+    recv_checksum = s.recv(1)
+    expected_checksum = checksum(msg)
+    if recv_checksum != bytes([expected_checksum]):
+        send_msg(s, msg_accept)
+        return None
+    send_msg(s, msg_accept)
+    return msg.decode('utf-8')
 
-def send(s, data, tries=0):
-    while True:
+def send(s, data, tries=3):
+    """Send data with retries"""
+    while tries > 0:
+        send_msg(s, data)
+        msg = recv_msg(s)
+        if msg is not None:
+            return True
         tries -= 1
-        if tries == 0:
-            return False
-        sendMsg(s,data)
-        msg=recvMsg(s)
-        if msg==msgAccept.encode('utf-8'):
-            break
+    return False
 
-def recieve(s, tries=0):
-    while True:
+def receive(s, tries=3):
+    """Receive data with retries"""
+    while tries > 0:
+        msg = recv_msg(s)
+        if msg is not None:
+            return msg
         tries -= 1
-        if tries == 0:
-            return False
-        msg=recvMsg(s)
-        sendMsg(s,msgAccept)
-        if checksum(msg)==0:
-            break
-    return msg[:-1].decode('utf-8')
+    return None
