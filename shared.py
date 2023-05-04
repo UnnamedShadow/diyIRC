@@ -2,6 +2,8 @@
 
 import socket
 
+address=('localhost',1234)
+
 msgEnd='\n'
 codec='utf-8'
 

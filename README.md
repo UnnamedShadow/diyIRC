@@ -8,11 +8,15 @@ with a server and a client
 
 ### Server
 
+enter the downloaded directory and run:
+
 ```bash
 python3 server.py
 ```
 
 ### Client
+
+enter the downloaded directory and run:
 
 ```bash
 python3 client.py
@@ -26,7 +30,7 @@ client: `SAY <message>`
 
 ### receiving messages
 
-server: `MSG <ip> <message>`
+server: `MSG <ip> <timestamp> <message>`
 
 ### sending commands
 
@@ -34,5 +38,5 @@ client: `CMD <command>`
 
 ### geting ip to name table
 
-client: `GET IP`
-server: `IP <json>`
+client: `GET IPT`  
+server: `IPT <json>`
