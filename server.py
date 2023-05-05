@@ -6,7 +6,7 @@ import time
 s=socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 # serve at localhost port 1234
 s.bind(shared.address)
-s.listen(1)
+s.listen(5)
 
 def handle_conn(s,addr):
     shared.send(s, 'hi there '+str(addr))
@@ -27,7 +27,10 @@ def handle_conn(s,addr):
             with open('ipt.txt', 'r') as f:
                 shared.send(s, 'IPT '+f.read())
         elif msg[:7]=='SET IPT':
-            pass
+            with open('ipt.txt', 'w') as f:
+                ipt:dict=eval(f.read())
+                ipt[addr[0]]=msg[7:]
+                f.write(str(ipt))
         elif msg[:8]=='GET PING':
             #  return the time in unix timestamp format
             shared.send(s, 'PONG '+str(time.time()))

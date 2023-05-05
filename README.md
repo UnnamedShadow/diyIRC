@@ -24,7 +24,7 @@ python3 client.py
 
 ## Protocol
 
-all messages("\<message>") are sent in base64 encoded
+all messages("\<message>") are sent in base64 encoded  
 time is sent in unix timestamp format
 
 ### Sending messages
@@ -33,7 +33,7 @@ client: `SAY <message>`
 
 ### receiving messages
 
-client: `GET MSG <time>`
+client: `GET MSG <time>`  
 server: `MSG <json>`
 
 ### geting ip to name table
@@ -47,7 +47,7 @@ client: `SET IPT <name>`
 
 ### getting ping
 
-client: `GET PING`
+client: `GET PING`  
 server: `PONG <time>`
 
 ### invalid request

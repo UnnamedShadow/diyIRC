@@ -1,1 +1,7 @@
-// i think this is the solution
+[
+  {
+    "time": 123234,
+    "ip": "132.213.32.3",
+    "content": "Hi, I'm a message"
+  }
+]
