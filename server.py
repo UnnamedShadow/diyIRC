@@ -10,15 +10,14 @@ s.listen(5)
 
 def handle_conn(s,addr):
     shared.send(s, 'hi there '+str(addr))
-    # recieve a message
-    print(shared.recieve(s))
     while True:
-        # recieve a message
-        msg = shared.recieve(s)
-        if msg=='':
+        # receive a message
+        msg = shared.receive(s)
+        if msg=='' or msg[:4] == "QUIT":
+                shared.send(s, "BYE")
                 # if the message is empty, the client has disconnected I think
                 s.close()
-                break
+                return
         elif msg[:3]=='SAY':
             pass
         elif msg[:7] == 'GET MSG':
@@ -39,8 +38,9 @@ def handle_conn(s,addr):
                 print('error:')
                 print(msg)
 
+
 # accept a connection
 while True:
     conn, addr = s.accept()
     # handle the connection in a new thread
-    threading.Thread(target=handle_conn, args=(conn,addr)).start()
+    threading.Thread(target=handle_conn, args=(conn, addr)).start()
