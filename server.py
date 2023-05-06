@@ -13,7 +13,7 @@ def handle_conn(s,addr):
         # recieve a message
         msg = shared.recieve(s)
         match msg.split('\t'):
-            case ['']:
+            case [''] | ['BYE']:
                 # if the message is empty, the client has disconnected I think
                 s.close()
                 break

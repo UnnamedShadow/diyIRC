@@ -53,3 +53,7 @@ server: `PONG\t<time>`
 ### Invalid request
 
 server: `ERR\t<message>`
+
+### Disconnect
+
+client: `BYE`
