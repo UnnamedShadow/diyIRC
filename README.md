@@ -29,27 +29,27 @@ time is sent in unix timestamp format
 
 ### Sending messages
 
-client: `SAY <message>`
+client: `SAY\t<message>`
 
-### receiving messages
+### Receiving messages
 
-client: `GET MSG <time>`  
-server: `MSG <json>`
+client: `GET MSG\t<time>`  
+server: `MSG\t<json>`
 
-### geting ip to name table
+### Geting ip to name table
 
 client: `GET IPT`  
-server: `IPT <json>`
+server: `IPT\t<json>`
 
-### send name to ip table
+### Send name to ip table
 
-client: `SET IPT <name>`
+client: `SET IPT\t<name>`
 
-### getting ping
+### Getting ping
 
 client: `GET PING`  
-server: `PONG <time>`
+server: `PONG\t<time>`
 
-### invalid request
+### Invalid request
 
-server: `ERR <message>`
+server: `ERR\t<message>`

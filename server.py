@@ -9,38 +9,39 @@ s.bind(shared.address)
 s.listen(5)
 
 def handle_conn(s,addr):
-    shared.send(s, 'hi there '+str(addr))
     while True:
-        # receive a message
-        msg = shared.receive(s)
-        if msg=='' or msg[:4] == "QUIT":
-                shared.send(s, "BYE")
+        # recieve a message
+        msg = shared.recieve(s)
+        match msg.split('\t'):
+            case ['']:
                 # if the message is empty, the client has disconnected I think
                 s.close()
-                return
-        elif msg[:3]=='SAY':
-            pass
-        elif msg[:7] == 'GET MSG':
-            pass
-        elif msg=='GET IPT':
-            with open('ipt.txt', 'r') as f:
-                shared.send(s, 'IPT '+f.read())
-        elif msg[:7]=='SET IPT':
-            with open('ipt.txt', 'w') as f:
-                ipt:dict=eval(f.read())
-                ipt[addr[0]]=msg[7:]
-                f.write(str(ipt))
-        elif msg[:8]=='GET PING':
-            #  return the time in unix timestamp format
-            shared.send(s, 'PONG '+str(time.time()))
-        else:
-                shared.send(s, 'ERR '+msg)
-                print('error:')
-                print(msg)
-
+                break
+            case ['SAY', message]:
+                pass #TODO: implement with some commands
+            case ['GET MSG',from_time]:
+                with open('messages.json', 'r') as f:
+                    msgs:list[dict]=f.read()
+                    msgs=[msg for msg in msgs if msg['time']>from_time]
+                    shared.send(s, 'MSG '+str(msgs))
+            case ['GET IPT']:
+                with open('ipt.json', 'r') as f:
+                    shared.send(s, 'IPT '+f.read().replace('\n',''))
+            case ['SET IPT', name]:
+                with open('ipt.json', 'w') as f:
+                    ipt:dict=eval(f.read())
+                    ipt[addr[0]]=name
+                    f.write(str(ipt))
+            case ['GET PING']:
+                #  return the time in unix timestamp format
+                shared.send(s, 'PONG '+str(time.time()))
+            case _:
+                    shared.send(s, 'ERR '+msg)
+                    print('error:')
+                    print(msg)
 
 # accept a connection
 while True:
     conn, addr = s.accept()
     # handle the connection in a new thread
-    threading.Thread(target=handle_conn, args=(conn, addr)).start()
+    threading.Thread(target=handle_conn, args=(conn,addr)).start()
