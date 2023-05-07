@@ -23,15 +23,17 @@ def handle_conn(s, addr):
             case ['SAY', message]:
                 match msg:
                     case 'L2NsZWFudXA=': # if the message is equal to the /cleanup command, clear the messages older than 1 month
-                        with open('messages.json', 'w') as f:
-                            msgs:list[dict]=f.read()
+                        with open('messages.json', 'r+') as f:
+                            msgs:list[dict]=eval(f.read())
                             msgs=[msg for msg in msgs if msg['time']>time.time()-2592000]
+                            f.truncate(0)
                             f.write(str(msgs))
                     case _:
                         # otherwise, add the message to the messages file
-                        with open('messages.json', 'w') as f:
-                            msgs:list[dict]=f.read()
+                        with open('messages.json', 'r+') as f:
+                            msgs:list[dict]=eval(f.read())
                             msgs.append({'time':time.time(),'message':message,'name':addr[0]})
+                            f.truncate(0)
                             f.write(str(msgs))
             case ['GET MSG',from_time]:
                 with open('messages.json', 'r') as f:
@@ -42,9 +44,10 @@ def handle_conn(s, addr):
                 with open('ipt.json', 'r') as f:
                     shared.send(s, 'IPT ' + f.read().replace('\n', ''))
             case ['SET IPT', name]:
-                with open('ipt.json', 'w') as f:
+                with open('ipt.json', 'r+') as f:
                     ipt: dict = eval(f.read())
                     ipt[addr[0]] = name
+                    f.truncate(0)
                     f.write(str(ipt))
             case ['GET PING']:
                 #  return the time in unix timestamp format
