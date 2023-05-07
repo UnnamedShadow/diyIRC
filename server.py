@@ -21,10 +21,19 @@ def handle_conn(s, addr):
                 s.close()
                 return
             case ['SAY', message]:
-                # do something
-                shared.send(s, "message sent")
-                pass  # TODO: implement with some commands
-            case ['GET MSG', from_time]:
+                match msg:
+                    case 'L2NsZWFudXA=': # if the message is equal to the /cleanup command, clear the messages older than 1 month
+                        with open('messages.json', 'w') as f:
+                            msgs:list[dict]=f.read()
+                            msgs=[msg for msg in msgs if msg['time']>time.time()-2592000]
+                            f.write(str(msgs))
+                    case _:
+                        # otherwise, add the message to the messages file
+                        with open('messages.json', 'w') as f:
+                            msgs:list[dict]=f.read()
+                            msgs.append({'time':time.time(),'message':message,'name':addr[0]})
+                            f.write(str(msgs))
+            case ['GET MSG',from_time]:
                 with open('messages.json', 'r') as f:
                     msgs: list[dict] = f.read()
                     msgs = [msg for msg in msgs if msg['time'] > from_time]
