@@ -2,7 +2,7 @@
 
 import socket
 
-address = ('localhost', 10234)
+address = ('localhost', 50000)
 
 msgEnd = '\n'
 codec = 'utf-8'

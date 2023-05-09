@@ -6,7 +6,7 @@ import threading
 import time
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-# serve at localhost port 1234
+# serve at localhost port 50000
 s.bind(shared.address)
 s.listen(5)
 
@@ -36,7 +36,7 @@ def handle_conn(s, addr):
                             # otherwise, add the message to the messages file
                             with open('messages.json', 'r+') as f:
                                 msgs: list[dict] = eval(f.read())
-                                msgs.append({'time': time.time(), 'message': message, 'name': addr[0]})
+                                msgs.append({"time": time.time(), "message": message, "name": addr[0]})
                                 f.truncate(0)
                                 f.seek(0)
                                 f.write(str(msgs))
@@ -48,7 +48,7 @@ def handle_conn(s, addr):
                         shared.send(s, 'MSG\t' + str(msgs))
                 case ['GET IPT']:
                     with open('ipt.json', 'r') as f:
-                        shared.send(s, 'IPT ' + f.read().replace('\n', ''))
+                        shared.send(s, 'IPT\t' + f.read().replace('\n', ''))
                 case ['SET IPT', name]:
                     with open('ipt.json', 'r+') as f:
                         ipt: dict = eval(f.read())
@@ -63,16 +63,7 @@ def handle_conn(s, addr):
                     shared.send(s, 'ERR ' + msg)
                     print('error:')
                     print(msg)
-    except ConnectionAbortedError:
-        s.close()
-        return
-    except ConnectionResetError:
-        s.close()
-        return
-    except ConnectionError:
-        s.close()
-        return
-    except OSError:
+    except (ConnectionAbortedError, ConnectionResetError, ConnectionError, OSError):
         s.close()
         return
 
