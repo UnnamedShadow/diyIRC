@@ -1,5 +1,9 @@
 [
-  { "time": 123234, "ip": "132.213.32.3", "content": "SGksIEknbSBhIG1lc3NhZ2UNCg==" },
+  {
+    "time": 123234,
+    "ip": "132.213.32.3",
+    "message": "SGksIEknbSBhIG1lc3NhZ2U="
+  },
   {
     "time": 1683532617.4369056,
     "message": "SGVsbG8sIHdvcmxkIQ==",

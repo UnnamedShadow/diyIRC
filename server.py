@@ -1,3 +1,5 @@
+import base64
+
 import shared
 import socket
 import threading
@@ -23,26 +25,27 @@ def handle_conn(s, addr):
                     return
                 case ['SAY', message]:
                     match msg:
-                        case 'L2NsZWFudXA=': # if the message is equal to the /cleanup command, clear the messages older than 1 month
+                        case 'L2NsZWFudXA=':  # if the message is equal to the /cleanup command, clear the messages older than 1 month
                             with open('messages.json', 'r+') as f:
-                                msgs:list[dict]=eval(f.read())
-                                msgs=[msg for msg in msgs if msg['time']>time.time()-2592000]
+                                msgs: list[dict] = eval(f.read())
+                                msgs = [msg for msg in msgs if msg['time'] > time.time() - 2592000]
                                 f.truncate(0)
                                 f.seek(0)
                                 f.write(str(msgs))
                         case _:
                             # otherwise, add the message to the messages file
                             with open('messages.json', 'r+') as f:
-                                msgs:list[dict]=eval(f.read())
-                                msgs.append({'time':time.time(),'message':message,'name':addr[0]})
+                                msgs: list[dict] = eval(f.read())
+                                msgs.append({'time': time.time(), 'message': message, 'name': addr[0]})
                                 f.truncate(0)
                                 f.seek(0)
                                 f.write(str(msgs))
-                case ['GET MSG',from_time]:
+                case ['GET MSG', from_time]:
+                    from_time = float(base64.b64decode(bytes(from_time[2:], shared.codec)).decode())
                     with open('messages.json', 'r') as f:
                         msgs: list[dict] = eval(f.read())
-                        msgs = [msg for msg in msgs if msg['time'] > float(from_time)]
-                        shared.send(s, 'MSG ' + str(msgs))
+                        msgs = [msg for msg in msgs if msg['time'] > from_time]
+                        shared.send(s, 'MSG\t' + str(msgs))
                 case ['GET IPT']:
                     with open('ipt.json', 'r') as f:
                         shared.send(s, 'IPT ' + f.read().replace('\n', ''))
@@ -69,7 +72,7 @@ def handle_conn(s, addr):
     except ConnectionError:
         s.close()
         return
-    except WindowsError:
+    except OSError:
         s.close()
         return
 
